@@ -4,9 +4,16 @@ import { Task } from './task/task';
 import { MatDialog } from '@angular/material/dialog'
 import { TaskDialogComponent, TaskDialogResult } from './task-dialog/task-dialog.component';
 // import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
-import { Observable } from 'rxjs';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 
+const getObservable = (collection: AngularFirestoreCollection<Task>) => {
+  const subject = new BehaviorSubject<Task[]>([]);
+  collection.valueChanges({ idField: 'id' }).subscribe((val: Task[]) => {
+    subject.next(val);
+  });
+  return subject;
+};
 
 @Component({
   selector: 'app-root',
