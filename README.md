@@ -1,4 +1,12 @@
-# KanbanFire
+# Kanban Fire
+
+Built from the following tutorial:
+
+- https://github.com/FirebaseExtended/codelab-kanban-fire/tree/master
+- https://developers.google.com/codelabs/building-a-web-app-with-angular-and-firebase
+- https://www.youtube.com/watch?v=-87xT2uBbbQ
+
+# Angular Boilerplate
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.1.6.
 
