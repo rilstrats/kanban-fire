@@ -1,11 +1,11 @@
 import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { Task } from './task/task';
 import { MatDialog } from '@angular/material/dialog'
 import { TaskDialogComponent, TaskDialogResult } from './task-dialog/task-dialog.component';
-import { Observable, BehaviorSubject } from 'rxjs';
-// import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
+import { Observable, Subscription } from 'rxjs';
 import { Firestore, collection, collectionData, addDoc, deleteDoc, setDoc, CollectionReference, runTransaction, doc } from '@angular/fire/firestore'
+import { Auth, User, user, authState, idToken, GoogleAuthProvider, signInWithPopup, signOut, AuthProvider } from '@angular/fire/auth';
 
 // const getObservable = (collection: AngularFirestoreCollection<Task>) => {
 //   const subject = new BehaviorSubject<Task[]>([]);
@@ -22,17 +22,22 @@ import { Firestore, collection, collectionData, addDoc, deleteDoc, setDoc, Colle
 })
 export class AppComponent {
 
-  private firestore: Firestore = inject(Firestore)
+  private firestore: Firestore = inject(Firestore);
   todo$: Observable<Task[]>;
-  inProgress$: Observable<Task[]>;
-  done$: Observable<Task[]>;
-
   todoCollection: CollectionReference;
+  inProgress$: Observable<Task[]>;
   inProgressCollection: CollectionReference;
+  done$: Observable<Task[]>;
   doneCollection: CollectionReference;
 
-  // laneCollections: { [id: string]: CollectionReference };
-  // lanes: { [id: string]: Observable<Task[]> };
+  providers = new Map<string, AuthProvider>();
+  private auth: Auth = inject(Auth);
+  // user$ = user(this.auth);
+  // userSubscription: Subscription;
+  // authState$ = authState(this.auth);
+  // authStateSubscription: Subscription;
+  // idToken$ = idToken(this.auth);
+  // idTokenSubscription: Subscription;
 
   title = 'Hello';
 
@@ -48,23 +53,32 @@ export class AppComponent {
   ) {
     const todoCollection = collection(this.firestore, 'todo');
     this.todo$ = collectionData(todoCollection, { idField: 'id' }) as Observable<Task[]>;
-
     const inProgressCollection = collection(this.firestore, 'inProgress');
     this.inProgress$ = collectionData(inProgressCollection, { idField: 'id' }) as Observable<Task[]>;
-
     const doneCollection = collection(this.firestore, 'done');
     this.done$ = collectionData(doneCollection, { idField: 'id' }) as Observable<Task[]>;
 
-    // this.laneCollections = {
-    //   "todo": todoCollection,
-    //   "inProgress": inProgressCollection,
-    //   "done": doneCollection
-    // };
-    // this.lanes = {
-    //   "todo": this.todo$,
-    //   "inProgress": this.inProgress$,
-    //   "done": this.done$
-    // };
+    // this.userSubscription = this.user$.subscribe((aUser: User | null) => {
+    //   //handle user state changes here. Note, that user will be null if there is no currently logged in user.
+    //   console.log("aUser:", aUser);
+    // })
+    // this.authStateSubscription = this.authState$.subscribe((aState: User | null) => {
+    //   //handle auth state changes here. Note, that user will be null if there is no currently logged in user.
+    //   console.log("aState:", aState);
+    // })
+    // this.idTokenSubscription = this.idToken$.subscribe((token: string | null) => {
+    //   //handle idToken changes here. Note, that user will be null if there is no currently logged in user.
+    //   console.log("token:", token);
+    // })
+    this.providers.set("Google", new GoogleAuthProvider)
+  }
+
+  async login(provider: AuthProvider) {
+    return await signInWithPopup(this.auth, provider)
+  }
+
+  async logout() {
+    return await signOut(this.auth)
   }
 
   editTask(list: 'done' | 'todo' | 'inProgress', task: Task): void {
@@ -138,4 +152,10 @@ export class AppComponent {
         // this.store.collection('todo').add(result.task);
       });
   }
+
+  // ngOnDestroy() {
+  //   this.userSubscription.unsubscribe();
+  //   this.authStateSubscription.unsubscribe();
+  //   this.idTokenSubscription.unsubscribe();
+  // }
 }

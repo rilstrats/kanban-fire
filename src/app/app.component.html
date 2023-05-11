@@ -1,7 +1,16 @@
 <mat-toolbar color="primary">
   <mat-icon>local_fire_department</mat-icon>
   <span>Kanban Fire</span>
+  <span class="example-spacer" style="flex: 1 1 auto;"></span>
+  <button mat-raised-button [matMenuTriggerFor]="loginMenu" aria-label="Example icon-button with a menu">
+    Login
+  </button>
 </mat-toolbar>
+
+<mat-menu #loginMenu="matMenu">
+  <button mat-menu-item (click)="login(providers.get(provider))"
+    *ngFor="let provider of providers.keys()">{{provider}}</button>
+</mat-menu>
 
 <div class="content-wrapper">
   <button (click)="newTask()" mat-button>
